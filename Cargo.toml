@@ -1,0 +1,16 @@
+[package]
+name = "unit_test_utils"
+version = "0.1.0"
+authors = ["Pantelis Sopasakis"]
+categories = ["development-tools::testing"]
+keywords = ["unit testing","test"]
+description = "Rust unilities for unit tests"
+documentation = "https://docs.rs/unit_test_utils"
+license = "MIT"
+readme = "README.md"
+
+[lib]
+name = "unit_test_utils"
+
+[dependencies]
+num = "0.2.0"
