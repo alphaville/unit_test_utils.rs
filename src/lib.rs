@@ -121,9 +121,12 @@ where
     T: Float + Zero,
 {
     assert!(a.len() == b.len());
-    a.iter().zip(b.iter()).fold(true, |acc, (ai, bi)| {
-        acc && (nearly_equal(*ai, *bi, rel_tol, abs_tol))
-    })
+    for (&a, &b) in a.iter().zip(b.iter()) {
+        if !nearly_equal(a, b, rel_tol, abs_tol) {
+            return false;
+        }
+    }
+    true
 }
 
 /// Asserts that two given arrays are almost equal
@@ -140,6 +143,101 @@ where
                 panic!("({}) arrays not equal at entry {}", msg, idx)
             }
         });
+}
+
+/// Checks whether a given array contains any `NaN` elements
+///
+/// ## Arguments
+///
+/// - `a` an array of floating-point numbers
+///
+/// ## Returns
+///
+/// Returns `true` if and only if there is at least one element which is `NaN`
+///
+/// ## Panics
+///
+/// No panics
+pub fn is_any_nan<T>(a: &[T]) -> bool
+where
+    T: Float,
+{
+    for &a in a.iter() {
+        if a.is_nan() {
+            return true;
+        }
+    }
+    false
+}
+
+/// Asserts that no element of an array is `NaN`
+///
+/// ## Arguments
+///
+/// - `a` an array of floating-point numbers
+/// - `msg` error name
+///
+/// ## Panics
+///
+/// This function will panic if any element of the given array is `NaN`
+///
+pub fn assert_none_is_nan<T>(a: &[T], msg: &str)
+where
+    T: Float,
+{
+    for (idx, &a) in a.iter().enumerate() {
+        if a.is_nan() {
+            panic!("({}) nan at poisition {}", msg, idx);
+        }
+    }
+}
+
+/// Asserts that all elements in an array are greater than or equal a given value
+///
+/// ## Arguments
+///
+/// - `a` given array of floating-point numbers
+/// - `lim` the lower bound on the array; all elements must be greater than or equal
+///    to `lim`, otherwise the function panics
+/// - `msg` error message
+///
+/// ## Panics
+///
+/// The function panic if there is at least on element in `a` which is smaller than `lim`
+///
+pub fn assert_all_ge<T>(a: &[T], lim: T, msg: &str)
+where
+    T: Float + std::fmt::Display,
+{
+    for (idx, &a) in a.iter().enumerate() {
+        if a < lim {
+            panic!("({}) array[{}] = {} is lower than {}", msg, idx, a, lim);
+        }
+    }
+}
+
+/// Asserts that all elements in an array are less than or equal a given value
+///
+/// ## Arguments
+///
+/// - `a` given array of floating-point numbers
+/// - `lim` the upper bound on the array; all elements must be less than or equal
+///    to `lim`, otherwise the function panics
+/// - `msg` error message
+///
+/// ## Panics
+///
+/// The function panic if there is at least on element in `a` which is greater than `lim`
+///
+pub fn assert_all_le<T>(a: &[T], lim: T, msg: &str)
+where
+    T: Float + std::fmt::Display,
+{
+    for (idx, &a) in a.iter().enumerate() {
+        if a > lim {
+            panic!("({}) array[{}] = {} is greater than {}", msg, idx, a, lim);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -259,5 +357,47 @@ mod tests {
         let x = [1.0, 2.0, 3.0];
         let y = [1.0, 2.0 + 1e-7];
         assert_nearly_equal_array(&x, &y, 1e-4, 1e-5, "arrays not equal");
+    }
+
+    #[test]
+    fn any_is_nan() {
+        let x: [f64; 2] = [0.0, 1.0];
+        assert!(!is_any_nan(&x));
+
+        let y: [f64; 3] = [0.0, std::f64::NAN, 1.0];
+        assert!(is_any_nan(&y));
+    }
+
+    #[test]
+    #[should_panic]
+    fn none_is_none_panic() {
+        let y: [f64; 3] = [0.0, std::f64::NAN, 1.0];
+        assert_none_is_nan(&y, "y");
+    }
+
+    #[test]
+    fn assert_all_positive() {
+        let y = [0.0, 1e-10, 1e-16];
+        assert_all_ge(&y, 0., "y");
+    }
+
+    #[test]
+    #[should_panic]
+    fn assert_all_positive_panic() {
+        let y = [0.0, 1e-10, -1e-12, 10.0];
+        assert_all_ge(&y, 0., "y");
+    }
+
+    #[test]
+    fn assert_all_le_one_f32() {
+        let y = [0.0_f32, 1.0, 0.5, -100.0];
+        assert_all_le(&y, 1.0, "y");
+    }
+
+    #[test]
+    #[should_panic]
+    fn assert_all_le_one_panic() {
+        let y = [0.0, 1.0, 1.0 + 4e-16, -100.0];
+        assert_all_le(&y, 1.0, "y");
     }
 }

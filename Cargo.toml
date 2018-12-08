@@ -1,6 +1,6 @@
 [package]
 name = "unit_test_utils"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Pantelis Sopasakis"]
 categories = ["development-tools::testing"]
 keywords = ["unit_testing","test"]
