@@ -92,7 +92,7 @@ pub fn assert_nearly_equal<T>(a: T, b: T, rel_tol: T, abs_tol: T, msg: &'static 
 where
     T: Float + Zero,
 {
-    assert!(nearly_equal(a, b, rel_tol, abs_tol), msg);
+    assert!(nearly_equal(a, b, rel_tol, abs_tol), "{}", msg);
 }
 
 /// Checks whether two arrays are element-wise nearly equal
