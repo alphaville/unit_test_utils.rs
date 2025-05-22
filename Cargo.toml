@@ -1,6 +1,6 @@
 [package]
 name = "unit_test_utils"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Pantelis Sopasakis"]
 categories = ["development-tools::testing"]
 keywords = ["unit_testing","test"]
@@ -13,4 +13,4 @@ readme = "README.md"
 name = "unit_test_utils"
 
 [dependencies]
-num = "0.2.0"
+num = "0.4"
